@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AQI Database — ER Diagram</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0b0f1a;--surface:#111827;--card:#1a2234;--border:#1e3a5f;
+  --text:#f0f4ff;--muted:#8b9dc3;--accent:#3b82f6;
+  --geo:#22c55e;--infra:#3b82f6;--ref:#a855f7;--ts:#f97316;
+  --agg:#eab308;--der:#ef4444;--ops:#94a3b8;
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;overflow:hidden;height:100vh}
+
+/* Toolbar */
+#toolbar{
+  position:fixed;top:0;left:0;right:0;height:48px;background:var(--surface);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;
+  gap:10px;padding:0 16px;z-index:100;
+}
+#toolbar h1{font-size:.85rem;font-weight:800;color:var(--accent);white-space:nowrap}
+#toolbar h2{font-size:.70rem;color:var(--muted);white-space:nowrap}
+.sep{width:1px;height:24px;background:var(--border)}
+.tb-btn{
+  padding:5px 11px;border-radius:5px;font-size:.72rem;font-weight:700;
+  border:1px solid var(--border);background:var(--card);color:var(--muted);
+  cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;
+}
+.tb-btn:hover{background:var(--border);color:var(--text)}
+.tb-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+#zoom-label{font-size:.72rem;color:var(--muted);min-width:42px;text-align:center}
+
+/* Legend */
+#legend{
+  position:fixed;bottom:16px;left:16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;padding:12px 14px;z-index:100;
+  font-size:.68rem;line-height:1.9;
+}
+#legend h4{font-size:.60rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.leg-item{display:flex;align-items:center;gap:7px;color:var(--muted)}
+.leg-dot{width:9px;height:9px;border-radius:50%}
+.leg-sep{height:1px;background:var(--border);margin:6px 0}
+.leg-sym{display:flex;gap:14px;color:var(--muted)}
+.leg-sym span{display:flex;align-items:center;gap:5px}
+
+/* Tooltip */
+#tooltip{
+  position:fixed;display:none;pointer-events:none;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:6px;padding:10px 13px;font-size:.70rem;line-height:1.8;
+  max-width:240px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+
+/* Canvas wrapper */
+#canvas-wrap{position:fixed;top:48px;left:0;right:0;bottom:0;overflow:hidden;cursor:grab}
+#canvas-wrap.grabbing{cursor:grabbing}
+#er-svg{position:absolute;top:0;left:0;user-select:none}
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>AQI Monitor</h1>
+  <h2>Entity-Relationship Diagram · 14 tables · 18 relationships</h2>
+  <div class="sep"></div>
+  <button class="tb-btn active" id="btn-view-keys" title="Show only PK/FK columns">Keys only</button>
+  <button class="tb-btn" id="btn-view-full" title="Show all attributes">All attributes</button>
+  <div class="sep"></div>
+  <button class="tb-btn" id="btn-zoom-in">＋ Zoom</button>
+  <span id="zoom-label">100%</span>
+  <button class="tb-btn" id="btn-zoom-out">－ Zoom</button>
+  <button class="tb-btn" id="btn-zoom-fit">⊡ Fit</button>
+  <div class="sep"></div>
+  <button class="tb-btn" id="btn-export-svg">↓ SVG</button>
+  <button class="tb-btn" id="btn-highlight-none" style="margin-left:auto">Clear highlight</button>
+</div>
+
+<div id="canvas-wrap">
+  <svg id="er-svg"></svg>
+</div>
+
+<div id="legend">
+  <h4>Layers</h4>
+  <div class="leg-item"><span class="leg-dot" style="background:var(--geo)"></span>Geography</div>
+  <div class="leg-item"><span class="leg-dot" style="background:var(--infra)"></span>Infrastructure</div>
+  <div class="leg-item"><span class="leg-dot" style="background:var(--ref)"></span>Reference</div>
+  <div class="leg-item"><span class="leg-dot" style="background:var(--ts)"></span>Time-Series</div>
+  <div class="leg-item"><span class="leg-dot" style="background:var(--agg)"></span>Aggregates</div>
+  <div class="leg-item"><span class="leg-dot" style="background:var(--der)"></span>Derived</div>
+  <div class="leg-item"><span class="leg-dot" style="background:var(--ops)"></span>Operations</div>
+  <div class="leg-sep"></div>
+  <h4>Notation (Crow's Foot)</h4>
+  <svg width="140" height="72" style="display:block;margin-top:4px">
+    <!-- One -->
+    <line x1="10" y1="12" x2="60" y2="12" stroke="#475569" stroke-width="1.5"/>
+    <line x1="55" y1="7"  x2="55" y2="17" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="60" y1="7"  x2="60" y2="17" stroke="#94a3b8" stroke-width="2"/>
+    <text x="68" y="16" font-size="9" fill="#8b9dc3">Exactly one</text>
+    <!-- Zero or One -->
+    <line x1="10" y1="32" x2="60" y2="32" stroke="#475569" stroke-width="1.5"/>
+    <circle cx="53" cy="32" r="4" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="60" y1="27" x2="60" y2="37" stroke="#94a3b8" stroke-width="2"/>
+    <text x="68" y="36" font-size="9" fill="#8b9dc3">Zero or one</text>
+    <!-- Many -->
+    <line x1="10" y1="52" x2="55" y2="52" stroke="#475569" stroke-width="1.5"/>
+    <line x1="55" y1="44" x2="65" y2="52" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="55" y1="60" x2="65" y2="52" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="55" y1="52" x2="65" y2="52" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="58" y1="47" x2="58" y2="57" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="68" y="56" font-size="9" fill="#8b9dc3">One or many</text>
+  </svg>
+  <div class="leg-sep"></div>
+  <div style="font-size:.60rem;color:var(--muted)">Click table to highlight · Drag to pan · Scroll to zoom</div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// ENTITY DEFINITIONS
+// ════════════════════════════════════════════════════════
+const ENTITIES = {
+  regions: {
+    layer:'Geography', color:'#22c55e',
+    desc:'Self-referential geographic hierarchy (country→state→city)',
+    cols:[
+      {name:'region_id',  type:'INTEGER',key:'PK'},
+      {name:'name',       type:'TEXT',   notNull:true},
+      {name:'region_type',type:'TEXT',   notNull:true, note:'country|state|city|district'},
+      {name:'parent_id',  type:'INTEGER',key:'FK', ref:'regions.region_id', note:'Self-ref'},
+      {name:'iso_code',   type:'TEXT'},
+      {name:'lat',        type:'REAL',   note:'−90 to 90'},
+      {name:'lng',        type:'REAL',   note:'−180 to 180'},
+      {name:'population', type:'INTEGER'},
+      {name:'timezone',   type:'TEXT',   note:'Default Asia/Kolkata'},
+    ]
+  },
+  stations: {
+    layer:'Infrastructure', color:'#3b82f6',
+    desc:'Physical monitoring locations with geographic and operational metadata',
+    cols:[
+      {name:'station_id',  type:'INTEGER',key:'PK'},
+      {name:'region_id',   type:'INTEGER',key:'FK', ref:'regions.region_id'},
+      {name:'station_code',type:'TEXT',   notNull:true, note:'UNIQUE'},
+      {name:'name',        type:'TEXT',   notNull:true},
+      {name:'station_type',type:'TEXT',   notNull:true, note:'reference|indicative|low_cost'},
+      {name:'zone_type',   type:'TEXT',   note:'industrial|traffic|residential|...'},
+      {name:'operator',    type:'TEXT'},
+      {name:'lat',         type:'REAL',   notNull:true},
+      {name:'lng',         type:'REAL',   notNull:true},
+      {name:'elevation_m', type:'REAL'},
+      {name:'is_active',   type:'INTEGER',notNull:true, note:'0 or 1'},
+    ]
+  },
+  sensors: {
+    layer:'Infrastructure', color:'#3b82f6',
+    desc:'Individual sensor instruments — one row per (station, parameter) pair',
+    cols:[
+      {name:'sensor_id',        type:'INTEGER',key:'PK'},
+      {name:'station_id',       type:'INTEGER',key:'FK', ref:'stations.station_id'},
+      {name:'parameter_id',     type:'INTEGER',key:'FK', ref:'parameters.parameter_id'},
+      {name:'sensor_code',      type:'TEXT',   note:'UNIQUE'},
+      {name:'model',            type:'TEXT'},
+      {name:'manufacturer',     type:'TEXT'},
+      {name:'measurement_tech', type:'TEXT',   note:'optical|electrochemical|...'},
+      {name:'accuracy_pct',     type:'REAL'},
+      {name:'detection_limit',  type:'REAL'},
+      {name:'last_calibration', type:'TEXT'},
+      {name:'next_calibration', type:'TEXT'},
+      {name:'is_active',        type:'INTEGER',notNull:true},
+    ]
+  },
+  calibration_records: {
+    layer:'Infrastructure', color:'#3b82f6',
+    desc:'Calibration history with traceability (zero offset, span factor, R²)',
+    cols:[
+      {name:'cal_id',           type:'INTEGER',key:'PK'},
+      {name:'sensor_id',        type:'INTEGER',key:'FK', ref:'sensors.sensor_id'},
+      {name:'calibration_date', type:'TEXT',   notNull:true},
+      {name:'next_due_date',    type:'TEXT'},
+      {name:'cal_type',         type:'TEXT',   note:'zero_span|multipoint|field|lab'},
+      {name:'zero_offset',      type:'REAL'},
+      {name:'span_factor',      type:'REAL'},
+      {name:'r_squared',        type:'REAL',   note:'0–1'},
+      {name:'passed',           type:'INTEGER',notNull:true},
+    ]
+  },
+  parameters: {
+    layer:'Reference', color:'#a855f7',
+    desc:'Pollutant and met parameter definitions with WHO 2021 and India NAAQS guideline values',
+    cols:[
+      {name:'parameter_id',      type:'INTEGER',key:'PK'},
+      {name:'code',              type:'TEXT',   notNull:true, note:'UNIQUE — pm25|pm10|no2|...'},
+      {name:'name',              type:'TEXT',   notNull:true},
+      {name:'category',          type:'TEXT',   note:'pollutant|meteorological|derived'},
+      {name:'standard_unit',     type:'TEXT',   notNull:true},
+      {name:'molecular_weight',  type:'REAL',   note:'g/mol for ppb→μg/m³'},
+      {name:'who_annual_ugm3',   type:'REAL',   note:'WHO 2021 annual guideline'},
+      {name:'who_24h_ugm3',      type:'REAL',   note:'WHO 2021 24h guideline'},
+      {name:'naaqs_annual_ugm3', type:'REAL',   note:'India NAAQS annual'},
+      {name:'naaqs_24h_ugm3',    type:'REAL',   note:'India NAAQS 24h'},
+      {name:'hard_min',          type:'REAL',   note:'Physical impossibility below'},
+      {name:'hard_max',          type:'REAL',   note:'Physical impossibility above'},
+    ]
+  },
+  data_sources: {
+    layer:'Reference', color:'#a855f7',
+    desc:'Registry of upstream data providers — APIs, CPCB reports, IoT streams',
+    cols:[
+      {name:'source_id',       type:'INTEGER',key:'PK'},
+      {name:'name',            type:'TEXT',   notNull:true, note:'UNIQUE'},
+      {name:'source_type',     type:'TEXT',   note:'api|iot_stream|cpcb_report|...'},
+      {name:'provider',        type:'TEXT'},
+      {name:'url',             type:'TEXT'},
+      {name:'is_active',       type:'INTEGER',notNull:true},
+      {name:'last_fetch_at',   type:'TEXT'},
+      {name:'records_fetched', type:'INTEGER',notNull:true},
+      {name:'reliability_pct', type:'REAL'},
+    ]
+  },
+  measurements: {
+    layer:'Time-Series', color:'#f97316',
+    desc:'Core time-series. One row per (station, parameter, timestamp). ~10⁸ rows in production.',
+    cols:[
+      {name:'measurement_id', type:'INTEGER',key:'PK'},
+      {name:'station_id',     type:'INTEGER',key:'FK', ref:'stations.station_id'},
+      {name:'parameter_id',   type:'INTEGER',key:'FK', ref:'parameters.parameter_id'},
+      {name:'sensor_id',      type:'INTEGER',key:'FK', ref:'sensors.sensor_id'},
+      {name:'source_id',      type:'INTEGER',key:'FK', ref:'data_sources.source_id'},
+      {name:'timestamp_utc',  type:'TEXT',   notNull:true, note:'ISO-8601 UTC'},
+      {name:'timestamp_local',type:'TEXT'},
+      {name:'value',          type:'REAL',   note:'Pipeline-corrected'},
+      {name:'raw_value',      type:'REAL',   note:'As-received'},
+      {name:'unit',           type:'TEXT'},
+      {name:'quality_flag',   type:'TEXT',   notNull:true, note:'VALID|SUSPECT|MISSING|...'},
+      {name:'is_imputed',     type:'INTEGER',notNull:true},
+      {name:'is_outlier',     type:'INTEGER',notNull:true},
+    ]
+  },
+  hourly_aggregates: {
+    layer:'Aggregates', color:'#eab308',
+    desc:'Hourly statistics. Updated by trigger on each measurement insert.',
+    cols:[
+      {name:'agg_id',       type:'INTEGER',key:'PK'},
+      {name:'station_id',   type:'INTEGER',key:'FK', ref:'stations.station_id'},
+      {name:'parameter_id', type:'INTEGER',key:'FK', ref:'parameters.parameter_id'},
+      {name:'hour_utc',     type:'TEXT',   notNull:true, note:'YYYY-MM-DDTHH:00:00'},
+      {name:'mean_value',   type:'REAL'},
+      {name:'min_value',    type:'REAL'},
+      {name:'max_value',    type:'REAL'},
+      {name:'std_value',    type:'REAL'},
+      {name:'record_count', type:'INTEGER'},
+      {name:'completeness', type:'REAL',   note:'0–100 %'},
+    ]
+  },
+  daily_aggregates: {
+    layer:'Aggregates', color:'#eab308',
+    desc:'Daily aggregates with percentile values and WHO/NAAQS exceedance flags',
+    cols:[
+      {name:'agg_id',        type:'INTEGER',key:'PK'},
+      {name:'station_id',    type:'INTEGER',key:'FK', ref:'stations.station_id'},
+      {name:'parameter_id',  type:'INTEGER',key:'FK', ref:'parameters.parameter_id'},
+      {name:'date',          type:'TEXT',   notNull:true, note:'YYYY-MM-DD'},
+      {name:'mean_value',    type:'REAL'},
+      {name:'p25_value',     type:'REAL'},
+      {name:'p75_value',     type:'REAL'},
+      {name:'p95_value',     type:'REAL'},
+      {name:'record_count',  type:'INTEGER'},
+      {name:'exceeds_who',   type:'INTEGER',notNull:true},
+      {name:'exceeds_naaqs', type:'INTEGER',notNull:true},
+    ]
+  },
+  monthly_aggregates: {
+    layer:'Aggregates', color:'#eab308',
+    desc:'Monthly city-level means sourced from CPCB Annual Reports 2019–2023',
+    cols:[
+      {name:'agg_id',               type:'INTEGER',key:'PK'},
+      {name:'station_id',           type:'INTEGER',key:'FK', ref:'stations.station_id'},
+      {name:'parameter_id',         type:'INTEGER',key:'FK', ref:'parameters.parameter_id'},
+      {name:'year',                 type:'INTEGER',notNull:true, note:'2000–2100'},
+      {name:'month',                type:'INTEGER',notNull:true, note:'1–12'},
+      {name:'mean_value',           type:'REAL'},
+      {name:'min_value',            type:'REAL'},
+      {name:'max_value',            type:'REAL'},
+      {name:'days_exceeding_who',   type:'INTEGER',notNull:true},
+      {name:'days_exceeding_naaqs', type:'INTEGER',notNull:true},
+      {name:'source',               type:'TEXT',   notNull:true},
+    ]
+  },
+  aqi_readings: {
+    layer:'Derived', color:'#ef4444',
+    desc:'Computed US EPA AQI with six sub-indices. Written by pipeline or INSERT trigger.',
+    cols:[
+      {name:'aqi_id',            type:'INTEGER',key:'PK'},
+      {name:'station_id',        type:'INTEGER',key:'FK', ref:'stations.station_id'},
+      {name:'timestamp_utc',     type:'TEXT',   notNull:true},
+      {name:'aqi_value',         type:'INTEGER',note:'0–500'},
+      {name:'aqi_category',      type:'TEXT'},
+      {name:'dominant_pollutant',type:'TEXT'},
+      {name:'pm25_sub_index',    type:'INTEGER'},
+      {name:'pm10_sub_index',    type:'INTEGER'},
+      {name:'no2_sub_index',     type:'INTEGER'},
+      {name:'o3_sub_index',      type:'INTEGER'},
+      {name:'calc_method',       type:'TEXT',   notNull:true, note:'us_epa|cpcb|nowcast'},
+    ]
+  },
+  pipeline_runs: {
+    layer:'Operations', color:'#94a3b8',
+    desc:'Audit trail of each data preprocessing pipeline execution with quality metrics',
+    cols:[
+      {name:'run_id',        type:'INTEGER',key:'PK'},
+      {name:'city_id',       type:'INTEGER',key:'FK', ref:'regions.region_id'},
+      {name:'started_at',    type:'TEXT',   notNull:true},
+      {name:'finished_at',   type:'TEXT'},
+      {name:'config_json',   type:'TEXT'},
+      {name:'total_records', type:'INTEGER',notNull:true},
+      {name:'issues_found',  type:'INTEGER',notNull:true},
+      {name:'issues_fixed',  type:'INTEGER',notNull:true},
+      {name:'quality_before',type:'REAL'},
+      {name:'quality_after', type:'REAL'},
+      {name:'status',        type:'TEXT',   notNull:true, note:'running|completed|failed'},
+    ]
+  },
+  quality_log: {
+    layer:'Operations', color:'#94a3b8',
+    desc:'Row-level record of every cleaning action applied by the pipeline',
+    cols:[
+      {name:'log_id',            type:'INTEGER',key:'PK'},
+      {name:'run_id',            type:'INTEGER',key:'FK', ref:'pipeline_runs.run_id'},
+      {name:'station_id',        type:'INTEGER',key:'FK', ref:'stations.station_id'},
+      {name:'parameter_id',      type:'INTEGER',key:'FK', ref:'parameters.parameter_id'},
+      {name:'measurement_id',    type:'INTEGER',key:'FK', ref:'measurements.measurement_id'},
+      {name:'timestamp_utc',     type:'TEXT'},
+      {name:'issue_type',        type:'TEXT',   notNull:true, note:'missing|outlier|unit_error|...'},
+      {name:'original_value',    type:'REAL'},
+      {name:'corrected_value',   type:'REAL'},
+      {name:'correction_method', type:'TEXT'},
+    ]
+  },
+  alerts: {
+    layer:'Operations', color:'#94a3b8',
+    desc:'Event-driven alerts for AQI thresholds, sensor faults, data quality issues',
+    cols:[
+      {name:'alert_id',       type:'INTEGER',key:'PK'},
+      {name:'station_id',     type:'INTEGER',key:'FK', ref:'stations.station_id'},
+      {name:'parameter_id',   type:'INTEGER',key:'FK', ref:'parameters.parameter_id'},
+      {name:'timestamp_utc',  type:'TEXT',   notNull:true},
+      {name:'alert_type',     type:'TEXT',   notNull:true, note:'aqi_threshold|sensor_offline|...'},
+      {name:'severity',       type:'TEXT',   notNull:true, note:'info|warning|critical|emergency'},
+      {name:'threshold_value',type:'REAL'},
+      {name:'observed_value', type:'REAL'},
+      {name:'message',        type:'TEXT'},
+      {name:'is_resolved',    type:'INTEGER',notNull:true},
+    ]
+  },
+};
+
+// ════════════════════════════════════════════════════════
+// RELATIONSHIPS  (from → to, cardinality at each end)
+// ════════════════════════════════════════════════════════
+// Crow's foot: 'one' | 'many' | 'zero_one' | 'zero_many'
+const RELS = [
+  {from:'regions',      to:'regions',           fromCard:'zero_one', toCard:'many', label:'parent of'},
+  {from:'regions',      to:'stations',          fromCard:'one',      toCard:'many', label:'has'},
+  {from:'regions',      to:'pipeline_runs',     fromCard:'zero_one', toCard:'many', label:'scope'},
+  {from:'stations',     to:'sensors',           fromCard:'one',      toCard:'many', label:'has'},
+  {from:'stations',     to:'measurements',      fromCard:'one',      toCard:'many', label:'collects'},
+  {from:'stations',     to:'hourly_aggregates', fromCard:'one',      toCard:'many', label:'aggregated →'},
+  {from:'stations',     to:'daily_aggregates',  fromCard:'one',      toCard:'many', label:'aggregated →'},
+  {from:'stations',     to:'monthly_aggregates',fromCard:'one',      toCard:'many', label:'aggregated →'},
+  {from:'stations',     to:'aqi_readings',      fromCard:'one',      toCard:'many', label:'computes →'},
+  {from:'stations',     to:'alerts',            fromCard:'one',      toCard:'many', label:'triggers'},
+  {from:'parameters',   to:'sensors',           fromCard:'one',      toCard:'many', label:'measured by'},
+  {from:'parameters',   to:'measurements',      fromCard:'one',      toCard:'many', label:'in'},
+  {from:'parameters',   to:'hourly_aggregates', fromCard:'one',      toCard:'many', label:'in'},
+  {from:'parameters',   to:'daily_aggregates',  fromCard:'one',      toCard:'many', label:'in'},
+  {from:'parameters',   to:'monthly_aggregates',fromCard:'one',      toCard:'many', label:'in'},
+  {from:'parameters',   to:'quality_log',       fromCard:'zero_one', toCard:'many', label:'logged'},
+  {from:'parameters',   to:'alerts',            fromCard:'zero_one', toCard:'many', label:'for'},
+  {from:'sensors',      to:'calibration_records',fromCard:'one',     toCard:'many', label:'has'},
+  {from:'data_sources', to:'measurements',      fromCard:'zero_one', toCard:'many', label:'provides'},
+  {from:'measurements', to:'quality_log',       fromCard:'zero_one', toCard:'many', label:'logged in'},
+  {from:'pipeline_runs',to:'quality_log',       fromCard:'one',      toCard:'many', label:'produces'},
+];
+
+// ════════════════════════════════════════════════════════
+// LAYOUT POSITIONS
+// ════════════════════════════════════════════════════════
+const W = 215, HDR = 34, ROW = 21, PAD = 10;
+
+const POS = {
+  regions:              [40,   60],
+  stations:             [310,  60],
+  sensors:              [590,  60],
+  calibration_records:  [870,  60],
+  parameters:           [1150, 60],
+  data_sources:         [1150, 480],
+  measurements:         [310,  520],
+  hourly_aggregates:    [40,   860],
+  daily_aggregates:     [310,  860],
+  monthly_aggregates:   [590,  860],
+  aqi_readings:         [870,  860],
+  pipeline_runs:        [590,  520],
+  quality_log:          [870,  520],
+  alerts:               [870,  660],
+};
+
+// ════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════
+const svg = document.getElementById('er-svg');
+const NS  = 'http://www.w3.org/2000/svg';
+let viewMode = 'keys'; // 'keys' | 'full'
+let zoom = 1, panX = 0, panY = 0;
+let highlighted = null;
+
+function el(tag, attrs, txt) {
+  const e = document.createElementNS(NS,'svg' === tag ? 'svg' : NS, tag === 'svg' ? 'svg' : tag);
+  // Workaround: always use NS
+  const e2 = document.createElementNS(NS, tag);
+  Object.entries(attrs||{}).forEach(([k,v])=>e2.setAttribute(k,v));
+  if (txt != null) e2.textContent = txt;
+  return e2;
+}
+
+function entityHeight(name) {
+  const cols = visibleCols(name);
+  return HDR + cols.length * ROW + PAD * 2;
+}
+
+function visibleCols(name) {
+  const e = ENTITIES[name];
+  if (!e) return [];
+  return viewMode === 'keys' ? e.cols.filter(c => c.key) : e.cols;
+}
+
+function entityCenter(name) {
+  const [x, y] = POS[name];
+  return [x + W/2, y + entityHeight(name)/2];
+}
+
+function entityEdgePoint(name, side, colName) {
+  const [x, y] = POS[name];
+  const cols = visibleCols(name);
+  const ci   = colName ? cols.findIndex(c=>c.name===colName) : 0;
+  const colY = y + HDR + PAD + (ci>=0?ci:0)*ROW + ROW/2;
+  return side === 'right' ? [x + W, colY] : [x, colY];
+}
+
+function drawCrowsFoot(g, x, y, dir, card) {
+  // dir: 'left' or 'right' (which way the symbol faces)
+  const d  = dir === 'right' ? 1 : -1;
+  const L  = 12;
+
+  if (card === 'one' || card === 'zero_one') {
+    // Mandatory bar(s)
+    const lx = x + d*10;
+    g.appendChild(el('line',{x1:lx,y1:y-7,x2:lx,y2:y+7,stroke:'#64748b','stroke-width':'2'}));
+    if (card === 'zero_one') {
+      // Circle for optional
+      g.appendChild(el('circle',{cx:x+d*20,cy:y,r:'5',fill:'none',stroke:'#64748b','stroke-width':'1.5'}));
+    } else {
+      // Second bar for exactly-one
+      const lx2 = x + d*18;
+      g.appendChild(el('line',{x1:lx2,y1:y-7,x2:lx2,y2:y+7,stroke:'#64748b','stroke-width':'2'}));
+    }
+  }
+
+  if (card === 'many' || card === 'zero_many') {
+    // Crow's foot (three prongs)
+    const tip = x + d*L;
+    g.appendChild(el('line',{x1:x,y1:y,   x2:tip,y2:y,   stroke:'#64748b','stroke-width':'1.5'})); // center
+    g.appendChild(el('line',{x1:x,y1:y-8, x2:tip,y2:y,   stroke:'#64748b','stroke-width':'1.5'})); // top
+    g.appendChild(el('line',{x1:x,y1:y+8, x2:tip,y2:y,   stroke:'#64748b','stroke-width':'1.5'})); // bottom
+    // Mandatory bar or circle
+    const bx = x + d*18;
+    if (card === 'zero_many') {
+      g.appendChild(el('circle',{cx:bx,cy:y,r:'5',fill:'none',stroke:'#64748b','stroke-width':'1.5'}));
+    } else {
+      g.appendChild(el('line',{x1:bx,y1:y-7,x2:bx,y2:y+7,stroke:'#64748b','stroke-width':'2'}));
+    }
+  }
+}
+
+function renderAll() {
+  svg.innerHTML = '';
+
+  // Background
+  svg.appendChild(el('rect',{x:0,y:0,width:'5000',height:'3000',fill:'#0b0f1a'}));
+
+  // Zone backgrounds
+  const zones = [
+    {label:'GEOGRAPHY',    x:20,y:30,w:260,h:600,c:'#22c55e'},
+    {label:'INFRASTRUCTURE',x:290,y:30,w:860,h:500,c:'#3b82f6'},
+    {label:'REFERENCE',    x:1130,y:30,w:256,h:800,c:'#a855f7'},
+    {label:'TIME-SERIES',  x:290,y:500,w:280,h:340,c:'#f97316'},
+    {label:'AGGREGATES',   x:20,y:840,w:1110,h:340,c:'#eab308'},
+    {label:'OPERATIONS',   x:560,y:500,w:570,h:400,c:'#94a3b8'},
+  ];
+  zones.forEach(z=>{
+    const r = el('rect',{x:z.x,y:z.y,width:z.w,height:z.h,rx:'10',
+      fill:`${z.c}08`,stroke:`${z.c}20`,'stroke-width':'1.5'});
+    svg.appendChild(r);
+    svg.appendChild(el('text',{x:z.x+10,y:z.y+15,fill:z.c,
+      'font-size':'9','font-weight':'800','letter-spacing':'2',
+      'font-family':'sans-serif',opacity:'0.5'},z.label));
+  });
+
+  // Relationship lines
+  const lineGroup = el('g',{id:'rel-lines'});
+  RELS.forEach(rel=>{
+    if (rel.from === rel.to) return; // skip self-ref for clarity
+    const [fx,fy] = POS[rel.from]||[];
+    const [tx,ty] = POS[rel.to]  ||[];
+    if (!fx||!tx) return;
+
+    const fc = entityCenter(rel.from);
+    const tc = entityCenter(rel.to);
+
+    // Pick sides
+    const fromRight = tc[0] > fc[0];
+    const [x1,y1]   = entityEdgePoint(rel.from, fromRight?'right':'left');
+    const [x2,y2]   = entityEdgePoint(rel.to,   fromRight?'left':'right');
+
+    const dim = highlighted && highlighted !== rel.from && highlighted !== rel.to;
+    const cx1 = x1 + (fromRight?60:-60);
+    const cx2 = x2 + (fromRight?-60:60);
+
+    const path = el('path',{
+      d:`M${x1},${y1} C${cx1},${y1} ${cx2},${y2} ${x2},${y2}`,
+      fill:'none',stroke: dim?'#1e293b':'#334155',
+      'stroke-width': dim?'1':'1.5',
+      'class':'rel-line',
+      'data-from':rel.from,'data-to':rel.to,
+    });
+    lineGroup.appendChild(path);
+
+    // Crow's foot symbols
+    const g = el('g',{opacity: dim?'0.3':'1'});
+    drawCrowsFoot(g, x1, y1, fromRight?'right':'left', rel.fromCard);
+    drawCrowsFoot(g, x2, y2, fromRight?'left':'right',  rel.toCard);
+    lineGroup.appendChild(g);
+
+    // Relationship label at midpoint
+    const mx = (x1+x2)/2, my = Math.min(y1,y2) - 8;
+    lineGroup.appendChild(el('text',{
+      x:mx,y:my,fill:'#475569','font-size':'8','font-family':'sans-serif',
+      'text-anchor':'middle',opacity:dim?'0.2':'0.7',
+    },rel.label));
+  });
+  svg.appendChild(lineGroup);
+
+  // Entity boxes
+  const boxGroup = el('g',{id:'ent-boxes'});
+  Object.keys(ENTITIES).forEach(name=>{
+    const e    = ENTITIES[name];
+    const [x,y]= POS[name]||[0,0];
+    const h    = entityHeight(name);
+    const cols = visibleCols(name);
+    const dim  = highlighted && highlighted !== name;
+
+    const g = el('g',{'data-entity':name,opacity:dim?'0.25':'1',cursor:'pointer'});
+
+    // Box shadow
+    g.appendChild(el('rect',{x:x+3,y:y+3,width:W,height:h,rx:'6',fill:'rgba(0,0,0,0.5)'}));
+    // Box body
+    g.appendChild(el('rect',{x,y,width:W,height:h,rx:'6',
+      fill:'#1e293b',stroke: highlighted===name?e.color:'#334155',
+      'stroke-width': highlighted===name?'2':'1'}));
+    // Header bg
+    g.appendChild(el('rect',{x,y,width:W,height:HDR,rx:'6',fill:`${e.color}25`}));
+    g.appendChild(el('rect',{x,y:y+HDR-4,width:W,height:4,fill:`${e.color}25`}));
+    // Table name
+    g.appendChild(el('text',{x:x+9,y:y+21,fill:e.color,
+      'font-size':'11.5','font-weight':'800','font-family':'monospace'},name));
+    // Layer tag
+    g.appendChild(el('text',{x:x+W-7,y:y+14,fill:'#475569',
+      'font-size':'8','font-family':'sans-serif','text-anchor':'end'},e.layer));
+
+    // Divider under header
+    g.appendChild(el('line',{x1:x,y1:y+HDR,x2:x+W,y2:y+HDR,stroke:'#1e3a5f','stroke-width':'1'}));
+
+    // Columns
+    cols.forEach((c,i)=>{
+      const cy = y + HDR + PAD + i*ROW + ROW/2 + 5;
+      // Key indicator
+      if (c.key==='PK') {
+        g.appendChild(el('text',{x:x+7,y:cy,fill:'#eab308','font-size':'8','font-weight':'800','font-family':'sans-serif'},'PK'));
+      } else if (c.key==='FK') {
+        g.appendChild(el('text',{x:x+7,y:cy,fill:'#3b82f6','font-size':'8','font-weight':'800','font-family':'sans-serif'},'FK'));
+      } else {
+        g.appendChild(el('text',{x:x+7,y:cy,fill:'#1e3a5f','font-size':'8','font-family':'sans-serif'},'○'));
+      }
+      // Column name
+      g.appendChild(el('text',{x:x+26,y:cy,fill:c.key?'#e2e8f0':'#94a3b8',
+        'font-size':'10','font-family':'monospace','font-weight':c.key?'600':'400'},c.name));
+      // Type
+      g.appendChild(el('text',{x:x+W-7,y:cy,fill:'#7c3aed',
+        'font-size':'9','font-family':'monospace','text-anchor':'end'},c.type));
+      // Row separator
+      if (i < cols.length-1) {
+        g.appendChild(el('line',{x1:x+1,y1:cy+7,x2:x+W-1,y2:cy+7,
+          stroke:'#0f172a','stroke-width':'0.5'}));
+      }
+    });
+
+    if (viewMode === 'full') {
+      // Column count note if cols are many
+    }
+
+    g.addEventListener('click', ()=>{
+      highlighted = highlighted === name ? null : name;
+      renderAll(); setTransform();
+    });
+    g.addEventListener('mouseenter', e2=>{
+      const tip = document.getElementById('tooltip');
+      tip.innerHTML = `<strong style="color:${e.color}">${name}</strong><br>
+        <span style="color:#8b9dc3;font-size:.65rem">${e.layer}</span><br><br>
+        <span style="color:#cbd5e1;font-size:.70rem">${e.desc}</span><br><br>
+        <span style="color:#475569;font-size:.65rem">${e.cols.length} columns</span>`;
+      tip.style.display = 'block';
+    });
+    g.addEventListener('mousemove', e2=>{
+      const tip = document.getElementById('tooltip');
+      tip.style.left = (e2.clientX+14)+'px';
+      tip.style.top  = (e2.clientY+10)+'px';
+    });
+    g.addEventListener('mouseleave', ()=>{
+      document.getElementById('tooltip').style.display='none';
+    });
+
+    boxGroup.appendChild(g);
+  });
+  svg.appendChild(boxGroup);
+
+  // Self-reference: regions → regions (parent_id)
+  const [rx,ry]=[POS.regions[0],POS.regions[1]];
+  const sh=entityHeight('regions');
+  const selfGroup=el('g',{opacity:highlighted&&highlighted!=='regions'?'0.2':'1'});
+  selfGroup.appendChild(el('path',{
+    d:`M${rx+W},${ry+60} Q${rx+W+50},${ry+80} ${rx+W},${ry+100}`,
+    fill:'none',stroke:'#334155','stroke-width':'1.5'
+  }));
+  const sg=el('g',{});
+  drawCrowsFoot(sg,rx+W,ry+60,'right','one');
+  drawCrowsFoot(sg,rx+W,ry+100,'right','zero_many');
+  selfGroup.appendChild(sg);
+  selfGroup.appendChild(el('text',{
+    x:rx+W+35,y:ry+82,fill:'#475569','font-size':'8','font-family':'sans-serif','text-anchor':'middle'
+  },'parent of'));
+  svg.appendChild(selfGroup);
+
+  // Update canvas size
+  const maxX = Math.max(...Object.values(POS).map(([x])=>x)) + W + 60;
+  const maxY = Math.max(...Object.keys(POS).map(n=>{
+    const [,y]=POS[n]; return y+entityHeight(n);
+  })) + 60;
+  svg.setAttribute('width', maxX);
+  svg.setAttribute('height', maxY);
+}
+
+// ════════════════════════════════════════════════════════
+// PAN / ZOOM
+// ════════════════════════════════════════════════════════
+const wrap = document.getElementById('canvas-wrap');
+let dragging=false, dragStart={x:0,y:0}, panStart={x:0,y:0};
+
+function setTransform() {
+  svg.style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`;
+  svg.style.transformOrigin='0 0';
+  document.getElementById('zoom-label').textContent=Math.round(zoom*100)+'%';
+}
+
+wrap.addEventListener('mousedown',e=>{
+  dragging=true; dragStart={x:e.clientX,y:e.clientY}; panStart={x:panX,y:panY};
+  wrap.classList.add('grabbing');
+});
+document.addEventListener('mousemove',e=>{
+  if(!dragging)return;
+  panX=panStart.x+(e.clientX-dragStart.x);
+  panY=panStart.y+(e.clientY-dragStart.y);
+  setTransform();
+});
+document.addEventListener('mouseup',()=>{dragging=false;wrap.classList.remove('grabbing')});
+
+wrap.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const delta=e.deltaY>0?0.9:1.1;
+  const rect=wrap.getBoundingClientRect();
+  const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+  panX = mx - (mx-panX)*delta;
+  panY = my - (my-panY)*delta;
+  zoom = Math.min(4, Math.max(0.2, zoom*delta));
+  setTransform();
+},{passive:false});
+
+document.getElementById('btn-zoom-in').onclick=()=>{zoom=Math.min(4,zoom*1.2);setTransform()};
+document.getElementById('btn-zoom-out').onclick=()=>{zoom=Math.max(0.2,zoom/1.2);setTransform()};
+document.getElementById('btn-zoom-fit').onclick=()=>{
+  const maxX=Math.max(...Object.values(POS).map(([x])=>x))+W+60;
+  const maxY=Math.max(...Object.keys(POS).map(n=>{const[,y]=POS[n];return y+entityHeight(n)}))+60;
+  const rect=wrap.getBoundingClientRect();
+  zoom=Math.min(rect.width/maxX, rect.height/maxY)*0.95;
+  panX=(rect.width  - maxX*zoom)/2;
+  panY=(rect.height - maxY*zoom)/2;
+  setTransform();
+};
+document.getElementById('btn-highlight-none').onclick=()=>{highlighted=null;renderAll();setTransform()};
+
+document.getElementById('btn-view-keys').onclick=function(){
+  viewMode='keys'; this.classList.add('active');
+  document.getElementById('btn-view-full').classList.remove('active');
+  renderAll(); setTransform();
+};
+document.getElementById('btn-view-full').onclick=function(){
+  viewMode='full'; this.classList.add('active');
+  document.getElementById('btn-view-keys').classList.remove('active');
+  renderAll(); setTransform();
+};
+
+// ════════════════════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════════════════════
+document.getElementById('btn-export-svg').onclick=()=>{
+  const ser = new XMLSerializer();
+  const src = ser.serializeToString(svg);
+  const blob = new Blob([src], {type:'image/svg+xml'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='aqi-er-diagram.svg'; a.click();
+};
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+renderAll();
+// Auto-fit on load
+setTimeout(()=>document.getElementById('btn-zoom-fit').click(), 50);
+</script>
+</body>
+</html>

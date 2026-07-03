@@ -1,0 +1,93 @@
+// ============================================================
+// AirWatch — Power BI DAX measures
+// Create a blank table named "Measures" (Home > Enter Data > name it
+// "Measures"), then add each of these as a New Measure. They assume the
+// relationships described in README.md (esp. fact_measurements ->
+// dim_parameter, and a parameter slicer on dim_parameter[param_code]).
+// ============================================================
+
+// ── AQI (from fact_aqi) ─────────────────────────────────────
+Avg AQI = AVERAGE ( fact_aqi[aqi_value] )
+
+Max AQI = MAX ( fact_aqi[aqi_value] )
+
+Min AQI = MIN ( fact_aqi[aqi_value] )
+
+AQI Readings = COUNTROWS ( fact_aqi )
+
+Latest AQI =
+VAR LastTs = MAX ( fact_aqi[timestamp_utc] )
+RETURN
+    CALCULATE ( AVERAGE ( fact_aqi[aqi_value] ), fact_aqi[timestamp_utc] = LastTs )
+
+Unhealthy Hours =
+CALCULATE ( COUNTROWS ( fact_aqi ), fact_aqi[aqi_value] > 150 )
+
+% Unhealthy Hours =
+DIVIDE ( [Unhealthy Hours], [AQI Readings] )
+
+// AQI category label for the current filter context (uses the dominant
+// average AQI). Handy for a card with conditional colour.
+AQI Category =
+VAR A = [Avg AQI]
+RETURN
+    SWITCH (
+        TRUE (),
+        A <= 50,  "Good",
+        A <= 100, "Moderate",
+        A <= 150, "Unhealthy for Sensitive",
+        A <= 200, "Unhealthy",
+        A <= 300, "Very Unhealthy",
+        "Hazardous"
+    )
+
+// ── Pollutant concentrations (from fact_measurements) ───────
+// Use these with a slicer on dim_parameter[param_code] (pm25, no2, ...).
+Avg Value = AVERAGE ( fact_measurements[value] )
+
+Max Value = MAX ( fact_measurements[value] )
+
+Reading Count = COUNTROWS ( fact_measurements )
+
+// ── WHO / NAAQS exceedances (need fact -> dim_parameter relationship) ──
+WHO Exceedances =
+CALCULATE (
+    COUNTROWS ( fact_measurements ),
+    FILTER (
+        fact_measurements,
+        NOT ISBLANK ( RELATED ( dim_parameter[who_guideline] ) )
+            && fact_measurements[value] > RELATED ( dim_parameter[who_guideline] )
+    )
+)
+
+% WHO Exceedance =
+DIVIDE ( [WHO Exceedances], [Reading Count] )
+
+NAAQS Exceedances =
+CALCULATE (
+    COUNTROWS ( fact_measurements ),
+    FILTER (
+        fact_measurements,
+        NOT ISBLANK ( RELATED ( dim_parameter[naaqs_standard] ) )
+            && fact_measurements[value] > RELATED ( dim_parameter[naaqs_standard] )
+    )
+)
+
+% NAAQS Exceedance =
+DIVIDE ( [NAAQS Exceedances], [Reading Count] )
+
+// Ratio of the average concentration to the WHO guideline (1 = at limit).
+WHO Ratio =
+DIVIDE ( [Avg Value], AVERAGE ( dim_parameter[who_guideline] ) )
+
+// ── Time intelligence (needs dim_date marked as a Date table) ──
+Avg AQI 7d =
+CALCULATE (
+    [Avg AQI],
+    DATESINPERIOD ( dim_date[date], MAX ( dim_date[date] ), -7, DAY )
+)
+
+Avg AQI MoM % =
+VAR Cur = [Avg AQI]
+VAR Prev = CALCULATE ( [Avg AQI], DATEADD ( dim_date[date], -1, MONTH ) )
+RETURN DIVIDE ( Cur - Prev, Prev )

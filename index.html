@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AirWatch — Air Quality Monitoring Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ── Alert Banner ──────────────────────────────────────── -->
+<div id="alert-banner" class="alert-banner hidden">
+  <span id="alert-text"></span>
+  <button onclick="document.getElementById('alert-banner').classList.add('hidden')">✕</button>
+</div>
+
+<div class="app-wrapper">
+
+  <!-- ═══════════════════════════════════════════════════════
+       SIDEBAR
+  ═════════════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+          <rect width="34" height="34" rx="10" fill="url(#logoGrad)"/>
+          <path d="M7 23 Q11 12 17 16 Q23 20 27 11" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="17" cy="25" r="3.2" fill="white" opacity="0.85"/>
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="34" y2="34">
+              <stop offset="0%" stop-color="#3b82f6"/>
+              <stop offset="100%" stop-color="#7c3aed"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="logo-text">
+          <span class="logo-name">AirWatch</span>
+          <span class="logo-sub">Live Monitoring</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle" title="Collapse sidebar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">ANALYTICS</div>
+      <ul>
+        <li>
+          <a href="#" class="nav-item active" data-view="overview">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            <span class="nav-label">Overview</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="trends">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            <span class="nav-label">Trends</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="comparison">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            <span class="nav-label">Comparison</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="heatmap">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
+              <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+            </svg>
+            <span class="nav-label">Heatmap</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="health">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            <span class="nav-label">Health Advisory</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="forecast">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 17l6-6 4 4 8-8"/><polyline points="14 7 21 7 21 14"/>
+            </svg>
+            <span class="nav-label">Forecast</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-section-label">DATA</div>
+      <ul>
+        <li>
+          <a href="#" class="nav-item" data-view="pipeline">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              <circle cx="5" cy="5" r="1" fill="currentColor"/><circle cx="19" cy="19" r="1" fill="currentColor"/>
+            </svg>
+            <span class="nav-label">Data Pipeline</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="database">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <ellipse cx="12" cy="5" rx="9" ry="3"/>
+              <path d="M3 5v4c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+              <path d="M3 9v4c0 1.66 4 3 9 3s9-1.34 9-3V9"/>
+              <path d="M3 13v4c0 1.66 4 3 9 3s9-1.34 9-3v-4"/>
+            </svg>
+            <span class="nav-label">Database</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="kpis">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            <span class="nav-label">KPI Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="analytics">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="5"  cy="19" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="5" r="2"/>
+              <line x1="7" y1="17" x2="10" y2="14"/><line x1="14" y1="10" x2="17" y2="7"/>
+            </svg>
+            <span class="nav-label">Analytics</span>
+          </a>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <a href="#" class="nav-item" data-view="etl">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/>
+              <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+            </svg>
+            <span class="nav-label">ETL Studio</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="sensors">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="2 2"/>
+              <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+              <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+            </svg>
+            <span class="nav-label">Sensor Network</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-item" data-view="datasources">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            </svg>
+            <span class="nav-label">Data Sources</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-section-label">RESOURCES</div>
+      <ul>
+        <li>
+          <a href="#" class="nav-item" data-view="about">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span class="nav-label">About AQI</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="live-indicator"><span class="live-dot"></span><span class="nav-label">Live Data</span></div>
+      <div class="last-updated">Updated: <span id="last-update-time">--:--:--</span></div>
+    </div>
+  </aside>
+
+  <!-- Off-canvas backdrop (mobile drawer) -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═════════════════════════════════════════════════════════ -->
+  <div class="main-wrapper">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="mobile-menu-btn" id="mobile-menu-btn" title="Open menu" aria-label="Open menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="topbar-left">
+        <h1 class="page-title" id="page-title">Overview</h1>
+        <div class="breadcrumb">
+          <span>Air Quality</span>
+          <span class="breadcrumb-sep">›</span>
+          <span id="breadcrumb-view">Overview</span>
+        </div>
+      </div>
+      <div class="topbar-controls">
+        <div class="city-selector-wrapper">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <select id="city-select" class="city-select">
+            <option value="delhi">Delhi</option>
+            <option value="mumbai">Mumbai</option>
+            <option value="bangalore">Bangalore</option>
+            <option value="kolkata">Kolkata</option>
+            <option value="chennai">Chennai</option>
+            <option value="hyderabad">Hyderabad</option>
+            <option value="pune">Pune</option>
+            <option value="jaipur">Jaipur</option>
+            <option value="lucknow">Lucknow</option>
+            <option value="ahmedabad">Ahmedabad</option>
+          </select>
+        </div>
+        <div class="time-range-group">
+          <button class="time-btn active" data-range="24h">24H</button>
+          <button class="time-btn" data-range="7d">7D</button>
+          <button class="time-btn" data-range="30d">30D</button>
+          <button class="time-btn" data-range="1y">1Y</button>
+        </div>
+        <div id="source-badge" class="source-badge synth">
+          <span id="source-dot-topbar" class="source-dot idle"></span>
+          <span id="source-label-topbar">Synthetic</span>
+        </div>
+        <button class="icon-btn" id="refresh-btn" title="Refresh data">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="export-btn" title="Export CSV">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="theme-toggle" title="Toggle theme">
+          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="content-area">
+
+      <!-- ══════════════════════════════════════════════════
+           GLOBAL FILTER BAR
+      ══════════════════════════════════════════════════ -->
+      <div id="gfb" class="gfb" role="search" aria-label="Data filters">
+
+        <!-- Collapsed header (always visible) -->
+        <div class="gfb-header">
+          <button id="gfb-toggle" class="gfb-toggle" aria-expanded="false" aria-controls="gfb-body">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            Filters
+            <span id="gfb-badge" class="gfb-badge" style="display:none">0</span>
+          </button>
+          <span id="gfb-count" class="gfb-count"></span>
+          <div class="gfb-header-actions">
+            <button id="gfb-apply" class="gfb-btn gfb-btn-primary">Apply</button>
+            <button id="gfb-reset" class="gfb-btn gfb-btn-ghost">Reset</button>
+          </div>
+        </div>
+
+        <!-- Expandable filter body -->
+        <div class="gfb-body" id="gfb-body">
+
+          <!-- City -->
+          <div class="gfb-section">
+            <div class="gfb-section-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              City
+            </div>
+            <select id="gfb-city" class="gfb-select">
+              <option value="delhi">Delhi</option>
+              <option value="mumbai">Mumbai</option>
+              <option value="bangalore">Bangalore</option>
+              <option value="kolkata">Kolkata</option>
+              <option value="chennai">Chennai</option>
+              <option value="hyderabad">Hyderabad</option>
+              <option value="pune">Pune</option>
+              <option value="jaipur">Jaipur</option>
+              <option value="lucknow">Lucknow</option>
+              <option value="ahmedabad">Ahmedabad</option>
+            </select>
+          </div>
+
+          <!-- Date Range -->
+          <div class="gfb-section">
+            <div class="gfb-section-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Date Range
+            </div>
+            <div class="gfb-presets">
+              <button class="gfb-preset" data-days="1">24h</button>
+              <button class="gfb-preset active" data-days="7">7d</button>
+              <button class="gfb-preset" data-days="30">30d</button>
+              <button class="gfb-preset" data-days="90">90d</button>
+              <button class="gfb-preset" data-days="0">Custom</button>
+            </div>
+            <div class="gfb-custom-dates" id="gfb-custom-dates" style="display:none">
+              <input type="date" id="gfb-from" class="gfb-date-input" title="From date">
+              <span class="gfb-date-arrow">→</span>
+              <input type="date" id="gfb-to"   class="gfb-date-input" title="To date">
+            </div>
+          </div>
+
+          <!-- Pollutant Type -->
+          <div class="gfb-section">
+            <div class="gfb-section-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Pollutant
+              <button id="gfb-params-all"  class="gfb-micro">All</button>
+              <button id="gfb-params-none" class="gfb-micro">None</button>
+            </div>
+            <div class="gfb-checks" id="gfb-params">
+              <label class="gfb-check"><input type="checkbox" value="pm25" checked><span class="gfb-dot" style="background:#f97316"></span>PM2.5</label>
+              <label class="gfb-check"><input type="checkbox" value="pm10" checked><span class="gfb-dot" style="background:#fb923c"></span>PM10</label>
+              <label class="gfb-check"><input type="checkbox" value="no2"  checked><span class="gfb-dot" style="background:#8b5cf6"></span>NO₂</label>
+              <label class="gfb-check"><input type="checkbox" value="so2"  checked><span class="gfb-dot" style="background:#f59e0b"></span>SO₂</label>
+              <label class="gfb-check"><input type="checkbox" value="o3"   checked><span class="gfb-dot" style="background:#22d3ee"></span>O₃</label>
+              <label class="gfb-check"><input type="checkbox" value="co"   checked><span class="gfb-dot" style="background:#94a3b8"></span>CO</label>
+            </div>
+          </div>
+
+          <!-- AQI Category -->
+          <div class="gfb-section">
+            <div class="gfb-section-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              AQI Category
+              <button id="gfb-cats-all"  class="gfb-micro">All</button>
+              <button id="gfb-cats-none" class="gfb-micro">None</button>
+            </div>
+            <div class="gfb-checks" id="gfb-cats">
+              <label class="gfb-check"><input type="checkbox" value="Good"                    checked><span class="gfb-dot" style="background:#22c55e"></span>Good</label>
+              <label class="gfb-check"><input type="checkbox" value="Moderate"                checked><span class="gfb-dot" style="background:#eab308"></span>Moderate</label>
+              <label class="gfb-check"><input type="checkbox" value="Unhealthy for Sensitive" checked><span class="gfb-dot" style="background:#f97316"></span>USG</label>
+              <label class="gfb-check"><input type="checkbox" value="Unhealthy"               checked><span class="gfb-dot" style="background:#ef4444"></span>Unhealthy</label>
+              <label class="gfb-check"><input type="checkbox" value="Very Unhealthy"          checked><span class="gfb-dot" style="background:#8b5cf6"></span>V.Unhealthy</label>
+              <label class="gfb-check"><input type="checkbox" value="Hazardous"               checked><span class="gfb-dot" style="background:#991b1b"></span>Hazardous</label>
+            </div>
+          </div>
+
+        </div><!-- /gfb-body -->
+      </div><!-- /gfb -->
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: OVERVIEW
+      ══════════════════════════════════════════════════ -->
+      <div id="view-overview" class="view active">
+
+        <!-- AQI Gauge + KPI cards -->
+        <div class="overview-top">
+          <div class="card aqi-gauge-card">
+            <div class="card-header">
+              <h3>Current AQI</h3>
+              <div class="aqi-location">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span id="gauge-city-name">Delhi</span>
+              </div>
+            </div>
+            <div class="gauge-svg-wrap">
+              <svg id="aqi-gauge-svg" class="gauge-svg" viewBox="0 0 220 135">
+                <!-- Background arc segments (colour scale) -->
+                <path d="M 22 112 A 88 88 0 0 1 198 112" fill="none" stroke="rgba(128,128,128,0.12)" stroke-width="16" stroke-linecap="butt"/>
+                <!-- Good -->
+                <path class="seg" d="M 22 112 A 88 88 0 0 1 198 112" fill="none" stroke="#22c55e" stroke-width="16" stroke-linecap="butt"
+                  stroke-dasharray="17.6 258.9" stroke-dashoffset="0"/>
+                <!-- Moderate -->
+                <path class="seg" d="M 22 112 A 88 88 0 0 1 198 112" fill="none" stroke="#eab308" stroke-width="16" stroke-linecap="butt"
+                  stroke-dasharray="17.6 258.9" stroke-dashoffset="-17.6"/>
+                <!-- USG -->
+                <path class="seg" d="M 22 112 A 88 88 0 0 1 198 112" fill="none" stroke="#f97316" stroke-width="16" stroke-linecap="butt"
+                  stroke-dasharray="17.6 258.9" stroke-dashoffset="-35.2"/>
+                <!-- Unhealthy -->
+                <path class="seg" d="M 22 112 A 88 88 0 0 1 198 112" fill="none" stroke="#ef4444" stroke-width="16" stroke-linecap="butt"
+                  stroke-dasharray="17.6 258.9" stroke-dashoffset="-52.8"/>
+                <!-- Very Unhealthy -->
+                <path class="seg" d="M 22 112 A 88 88 0 0 1 198 112" fill="none" stroke="#a855f7" stroke-width="16" stroke-linecap="butt"
+                  stroke-dasharray="35.2 241.3" stroke-dashoffset="-70.4"/>
+                <!-- Hazardous -->
+                <path class="seg" d="M 22 112 A 88 88 0 0 1 198 112" fill="none" stroke="#dc2626" stroke-width="16" stroke-linecap="butt"
+                  stroke-dasharray="70.4 206.1" stroke-dashoffset="-105.6"/>
+                <!-- Needle -->
+                <line id="gauge-needle" x1="110" y1="112" x2="110" y2="32"
+                  stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+                <circle cx="110" cy="112" r="6" fill="white" opacity="0.9"/>
+                <circle cx="110" cy="112" r="3" fill="var(--bg-card)"/>
+                <!-- Value -->
+                <text id="gauge-value-text" x="110" y="94" text-anchor="middle" class="gauge-value-text">---</text>
+                <text id="gauge-category-text" x="110" y="118" text-anchor="middle" class="gauge-category-text">Loading…</text>
+              </svg>
+            </div>
+            <div class="gauge-scale">
+              <span style="color:var(--aqi-good)">0</span>
+              <span style="color:var(--aqi-moderate)">100</span>
+              <span style="color:var(--aqi-usg)">200</span>
+              <span style="color:var(--aqi-very)">300</span>
+              <span style="color:var(--aqi-hazardous)">500</span>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card" id="kpi-pm25">
+              <div class="kpi-header"><span class="kpi-label">PM2.5</span><span class="kpi-unit">μg/m³</span></div>
+              <div class="kpi-value" id="kpi-pm25-val">--</div>
+              <div class="kpi-bar-wrap"><div class="kpi-bar" id="kpi-pm25-bar" style="background:#ef4444;width:0%"></div></div>
+              <div class="kpi-meta">WHO limit: 15 μg/m³</div>
+            </div>
+            <div class="kpi-card" id="kpi-pm10">
+              <div class="kpi-header"><span class="kpi-label">PM10</span><span class="kpi-unit">μg/m³</span></div>
+              <div class="kpi-value" id="kpi-pm10-val">--</div>
+              <div class="kpi-bar-wrap"><div class="kpi-bar" id="kpi-pm10-bar" style="background:#f97316;width:0%"></div></div>
+              <div class="kpi-meta">WHO limit: 45 μg/m³</div>
+            </div>
+            <div class="kpi-card" id="kpi-no2">
+              <div class="kpi-header"><span class="kpi-label">NO₂</span><span class="kpi-unit">μg/m³</span></div>
+              <div class="kpi-value" id="kpi-no2-val">--</div>
+              <div class="kpi-bar-wrap"><div class="kpi-bar" id="kpi-no2-bar" style="background:#eab308;width:0%"></div></div>
+              <div class="kpi-meta">WHO limit: 25 μg/m³</div>
+            </div>
+            <div class="kpi-card" id="kpi-o3">
+              <div class="kpi-header"><span class="kpi-label">O₃</span><span class="kpi-unit">μg/m³</span></div>
+              <div class="kpi-value" id="kpi-o3-val">--</div>
+              <div class="kpi-bar-wrap"><div class="kpi-bar" id="kpi-o3-bar" style="background:#22c55e;width:0%"></div></div>
+              <div class="kpi-meta">WHO limit: 100 μg/m³</div>
+            </div>
+            <div class="kpi-card" id="kpi-co">
+              <div class="kpi-header"><span class="kpi-label">CO</span><span class="kpi-unit">mg/m³</span></div>
+              <div class="kpi-value" id="kpi-co-val">--</div>
+              <div class="kpi-bar-wrap"><div class="kpi-bar" id="kpi-co-bar" style="background:#3b82f6;width:0%"></div></div>
+              <div class="kpi-meta">WHO limit: 4 mg/m³</div>
+            </div>
+            <div class="kpi-card" id="kpi-so2">
+              <div class="kpi-header"><span class="kpi-label">SO₂</span><span class="kpi-unit">μg/m³</span></div>
+              <div class="kpi-value" id="kpi-so2-val">--</div>
+              <div class="kpi-bar-wrap"><div class="kpi-bar" id="kpi-so2-bar" style="background:#a855f7;width:0%"></div></div>
+              <div class="kpi-meta">WHO limit: 40 μg/m³</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AQI Trend -->
+        <div class="card chart-card">
+          <div class="card-header">
+            <h3>AQI Trend</h3>
+            <span class="card-subtitle" id="trend-subtitle">Last 24 hours</span>
+          </div>
+          <div class="chart-wrap" style="height:260px">
+            <canvas id="chart-trend"></canvas>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Pollutant Levels</h3>
+              <span class="card-subtitle">vs WHO Guidelines</span>
+            </div>
+            <div class="chart-wrap" style="height:240px">
+              <canvas id="chart-pollutant-bar"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Regional Snapshot</h3>
+              <span class="card-subtitle">Current AQI — all cities</span>
+            </div>
+            <div class="chart-wrap" style="height:240px">
+              <canvas id="chart-regional"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live per-pollutant AQI sub-indices from WAQI (shown only when live) -->
+        <div class="card" id="live-iaqi-card" style="display:none">
+          <div class="card-header">
+            <h3>Live Pollutant Breakdown</h3>
+            <span class="card-subtitle" id="live-iaqi-sub">WAQI · US-EPA AQI sub-index (0–500)</span>
+          </div>
+          <div id="live-iaqi-grid" style="padding:4px 2px"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: TRENDS
+      ══════════════════════════════════════════════════ -->
+      <div id="view-trends" class="view">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h3>Pollutant Concentration Trends</h3>
+            <div class="pollutant-toggles" id="pollutant-toggles"></div>
+          </div>
+          <div class="chart-wrap" style="height:340px">
+            <canvas id="chart-multi-trend"></canvas>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Daily Average AQI</h3>
+              <span class="card-subtitle" id="daily-avg-subtitle">Rolling 30-day view</span>
+            </div>
+            <div class="chart-wrap" style="height:220px">
+              <canvas id="chart-daily-avg"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Pollutant Profile</h3>
+              <span class="card-subtitle">Radar — normalised to WHO limits</span>
+            </div>
+            <div class="chart-wrap" style="height:220px">
+              <canvas id="chart-radar"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: FORECAST
+      ══════════════════════════════════════════════════ -->
+      <div id="view-forecast" class="view">
+
+        <!-- Control bar -->
+        <div class="forecast-toolbar">
+          <div class="forecast-toolbar-group">
+            <label class="forecast-ctl-label">Model</label>
+            <select id="forecast-model" class="forecast-select"></select>
+          </div>
+          <div class="forecast-toolbar-group">
+            <label class="forecast-ctl-label">Horizon</label>
+            <div class="forecast-horizon-tabs" id="forecast-horizon-tabs">
+              <button class="forecast-horizon-btn" data-h="12">12 h</button>
+              <button class="forecast-horizon-btn active" data-h="24">24 h</button>
+              <button class="forecast-horizon-btn" data-h="48">48 h</button>
+              <button class="forecast-horizon-btn" data-h="72">72 h</button>
+            </div>
+          </div>
+          <div class="forecast-model-desc" id="forecast-model-desc"></div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="kpi-cards-row" id="forecast-cards"></div>
+
+        <!-- Main forecast chart -->
+        <div class="card chart-card">
+          <div class="card-header">
+            <h3>AQI Forecast</h3>
+            <span class="card-subtitle" id="forecast-chart-sub">7-day history + projection with confidence band</span>
+          </div>
+          <div class="chart-wrap" style="height:360px">
+            <canvas id="chart-forecast"></canvas>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <!-- Hourly forecast table -->
+          <div class="card">
+            <div class="card-header">
+              <h3>Hourly Forecast</h3>
+              <span class="card-subtitle">Point estimate &amp; 90% interval</span>
+            </div>
+            <div class="table-wrap" style="max-height:300px;overflow-y:auto">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Time</th><th>AQI</th><th>Range</th><th>Category</th></tr>
+                </thead>
+                <tbody id="forecast-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Model accuracy / backtest -->
+          <div class="card">
+            <div class="card-header">
+              <h3>Model Accuracy</h3>
+              <span class="card-subtitle">Hold-out backtest on recent data</span>
+            </div>
+            <div class="chart-wrap" style="height:220px">
+              <canvas id="chart-forecast-accuracy"></canvas>
+            </div>
+            <p class="forecast-note" id="forecast-accuracy-note"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: COMPARISON
+      ══════════════════════════════════════════════════ -->
+      <div id="view-comparison" class="view">
+        <div id="city-cards-grid" class="city-cards-grid"></div>
+        <div class="card chart-card">
+          <div class="card-header">
+            <h3>AQI Ranking — All Cities</h3>
+            <span class="card-subtitle">Lower is better · Click a city card to highlight</span>
+          </div>
+          <div class="chart-wrap" style="height:280px">
+            <canvas id="chart-comparison-bar"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Detailed Rankings</h3></div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Rank</th><th>City</th><th>AQI</th><th>Category</th>
+                  <th>PM2.5</th><th>PM10</th><th>NO₂</th><th>SO₂</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="ranking-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: HEATMAP
+      ══════════════════════════════════════════════════ -->
+      <div id="view-heatmap" class="view">
+        <div class="card">
+          <div class="card-header">
+            <h3>AQI Heatmap — Hour of Day × Day of Week</h3>
+            <span class="card-subtitle">4-week average · Hover cells for details</span>
+          </div>
+          <div id="heatmap-container" class="heatmap-container"></div>
+          <div class="heatmap-legend">
+            <span style="font-size:0.72rem;color:var(--text-secondary)">Low AQI</span>
+            <div class="heatmap-gradient"></div>
+            <span style="font-size:0.72rem;color:var(--text-secondary)">High AQI</span>
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-header">
+            <h3>Best Hours for Outdoor Activity</h3>
+            <span class="card-subtitle">Per day — lowest average AQI window</span>
+          </div>
+          <div id="best-time-grid" class="best-time-grid"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: HEALTH ADVISORY
+      ══════════════════════════════════════════════════ -->
+      <div id="view-health" class="view">
+        <div class="card health-alert-card" id="health-alert-card">
+          <div class="health-alert-content">
+            <div class="health-icon" id="health-icon">💨</div>
+            <div class="health-text">
+              <h2 id="health-category">Loading…</h2>
+              <p id="health-advice">Fetching health advisory…</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="health-groups-grid">
+          <div class="health-group-card"><div class="health-group-icon">👶</div><h4>Children</h4><p id="hg-children">—</p></div>
+          <div class="health-group-card"><div class="health-group-icon">🧓</div><h4>Elderly</h4><p id="hg-elderly">—</p></div>
+          <div class="health-group-card"><div class="health-group-icon">🫀</div><h4>Heart Conditions</h4><p id="hg-heart">—</p></div>
+          <div class="health-group-card"><div class="health-group-icon">🫁</div><h4>Lung Conditions</h4><p id="hg-lung">—</p></div>
+          <div class="health-group-card"><div class="health-group-icon">🏃</div><h4>Athletes</h4><p id="hg-athletes">—</p></div>
+          <div class="health-group-card"><div class="health-group-icon">🧑</div><h4>General Public</h4><p id="hg-general">—</p></div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <h3>Current vs WHO 2021 Guidelines</h3>
+            <span class="card-subtitle">Annual mean concentrations</span>
+          </div>
+          <div class="chart-wrap" style="height:260px">
+            <canvas id="chart-who"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>Protective Measures</h3></div>
+          <div id="measures-grid" class="measures-grid"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: DATA PIPELINE
+      ══════════════════════════════════════════════════ -->
+      <div id="view-pipeline" class="view">
+
+        <!-- Step configurator -->
+        <div class="card pipeline-config-card">
+          <div class="card-header">
+            <h3>Pipeline Configuration</h3>
+            <span class="card-subtitle">Select strategies, then run to clean the current dataset</span>
+          </div>
+          <div class="pipeline-steps-row" id="pipeline-steps-row">
+
+            <div class="pipe-step" id="pstep-sentinels">
+              <div class="pipe-step-num">1</div>
+              <div class="pipe-step-icon">🧹</div>
+              <div class="pipe-step-name">Sentinel / NaN</div>
+              <div class="pipe-step-desc">Convert −999, NaN, null → missing</div>
+              <div class="pipe-step-status idle">Pending</div>
+            </div>
+
+            <div class="pipe-arrow">→</div>
+
+            <div class="pipe-step" id="pstep-units">
+              <div class="pipe-step-num">2</div>
+              <div class="pipe-step-icon">🔄</div>
+              <div class="pipe-step-name">Unit Check</div>
+              <div class="pipe-step-desc">Auto-detect ppb / ppm / °F / K</div>
+              <select class="pipe-select" id="cfg-unit-confidence">
+                <option value="0.70">Aggressive (70%)</option>
+                <option value="0.75" selected>Balanced (75%)</option>
+                <option value="0.90">Conservative (90%)</option>
+              </select>
+              <div class="pipe-step-status idle">Pending</div>
+            </div>
+
+            <div class="pipe-arrow">→</div>
+
+            <div class="pipe-step" id="pstep-ranges">
+              <div class="pipe-step-num">3</div>
+              <div class="pipe-step-icon">📏</div>
+              <div class="pipe-step-name">Range Validation</div>
+              <div class="pipe-step-desc">Physical hard / soft bounds</div>
+              <div class="pipe-step-status idle">Pending</div>
+            </div>
+
+            <div class="pipe-arrow">→</div>
+
+            <div class="pipe-step" id="pstep-outliers">
+              <div class="pipe-step-num">4</div>
+              <div class="pipe-step-icon">📊</div>
+              <div class="pipe-step-name">Outlier Treatment</div>
+              <select class="pipe-select" id="cfg-outlier-method">
+                <option value="ensemble" selected>Ensemble (2/5 votes)</option>
+                <option value="iqr">IQR (Tukey)</option>
+                <option value="modifiedz">Modified Z-score (MAD)</option>
+                <option value="zscore">Z-score</option>
+              </select>
+              <select class="pipe-select" id="cfg-outlier-treatment">
+                <option value="clip" selected>Clip to bounds</option>
+                <option value="interpolate">Interpolate</option>
+                <option value="rolling_median">Rolling median</option>
+                <option value="flag_only">Flag only</option>
+              </select>
+              <div class="pipe-step-status idle">Pending</div>
+            </div>
+
+            <div class="pipe-arrow">→</div>
+
+            <div class="pipe-step" id="pstep-missing">
+              <div class="pipe-step-num">5</div>
+              <div class="pipe-step-icon">🔍</div>
+              <div class="pipe-step-name">Missing Values</div>
+              <select class="pipe-select" id="cfg-missing-strategy">
+                <option value="interpolate" selected>Linear interpolation</option>
+                <option value="forward_fill">Forward fill</option>
+                <option value="backward_fill">Backward fill</option>
+                <option value="rolling_median">Rolling median</option>
+                <option value="cpcb_baseline">CPCB baseline</option>
+                <option value="seasonal_mean">Seasonal mean</option>
+                <option value="flag_only">Flag only</option>
+              </select>
+              <div class="pipe-step-status idle">Pending</div>
+            </div>
+
+            <div class="pipe-arrow">→</div>
+
+            <div class="pipe-step" id="pstep-consistency">
+              <div class="pipe-step-num">6</div>
+              <div class="pipe-step-icon">✅</div>
+              <div class="pipe-step-name">Consistency</div>
+              <div class="pipe-step-desc">PM10 ≥ PM2.5 · AQI = f(PM2.5)</div>
+              <div class="pipe-step-status idle">Pending</div>
+            </div>
+          </div>
+
+          <div class="pipeline-actions">
+            <button class="btn-run-pipeline" id="btn-inject-dirty">💉 Inject Issues</button>
+            <button class="btn-run-pipeline primary" id="btn-run-pipeline">▶ Run Pipeline</button>
+            <button class="btn-run-pipeline" id="btn-apply-clean" disabled>✅ Apply to Dashboard</button>
+            <button class="btn-run-pipeline" id="btn-reset-pipeline">↺ Reset</button>
+          </div>
+        </div>
+
+        <!-- Quality scores (hidden until run) -->
+        <div id="pipeline-results" class="hidden">
+          <!-- Score cards -->
+          <div class="quality-score-grid" id="quality-score-grid"></div>
+
+          <!-- Before / After comparison chart -->
+          <div class="card chart-card" style="margin-top:20px">
+            <div class="card-header">
+              <h3>Before / After Comparison — PM2.5</h3>
+              <div style="display:flex;gap:12px;font-size:0.72rem">
+                <span style="color:#3b82f6">■ Original</span>
+                <span style="color:#22c55e">■ Cleaned</span>
+                <span style="color:#eab308">■ Imputed</span>
+                <span style="color:#ef4444">■ Outlier fixed</span>
+              </div>
+            </div>
+            <div class="chart-wrap" style="height:280px">
+              <canvas id="chart-pipeline-comparison"></canvas>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <!-- Issues breakdown donut -->
+            <div class="card chart-card">
+              <div class="card-header">
+                <h3>Issues Found</h3>
+                <span class="card-subtitle" id="issues-total-label">0 total</span>
+              </div>
+              <div class="chart-wrap" style="height:220px">
+                <canvas id="chart-issues-donut"></canvas>
+              </div>
+            </div>
+            <!-- Per-parameter change bar -->
+            <div class="card chart-card">
+              <div class="card-header">
+                <h3>Changes by Parameter</h3>
+                <span class="card-subtitle">Total rows modified</span>
+              </div>
+              <div class="chart-wrap" style="height:220px">
+                <canvas id="chart-changes-param"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Missing-value heatmap before/after -->
+          <div class="card" style="margin-top:20px">
+            <div class="card-header">
+              <h3>Missing Value Pattern — Before &amp; After</h3>
+              <span class="card-subtitle">Each row = time point, each column = parameter</span>
+            </div>
+            <div id="missing-heatmap-container" class="missing-heatmap-wrap"></div>
+          </div>
+
+          <!-- Audit log -->
+          <div class="card" style="margin-top:20px">
+            <div class="card-header">
+              <h3>Audit Log</h3>
+              <span class="card-subtitle" id="audit-count-label">0 entries</span>
+            </div>
+            <div class="table-wrap" style="max-height:360px;overflow-y:auto">
+              <table class="data-table" id="audit-log-table">
+                <thead>
+                  <tr>
+                    <th>#</th><th>Step</th><th>Type</th><th>Parameter</th>
+                    <th>Row</th><th>Before</th><th>After</th><th>Detail</th>
+                  </tr>
+                </thead>
+                <tbody id="audit-log-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: DATABASE EXPLORER
+      ══════════════════════════════════════════════════ -->
+      <div id="view-database" class="view">
+
+        <!-- DB status bar -->
+        <div class="db-status-bar" id="db-status-bar">
+          <div class="db-stat"><span class="db-stat-val" id="dbstat-tables">--</span><span class="db-stat-lbl">Tables</span></div>
+          <div class="db-stat"><span class="db-stat-val" id="dbstat-views">--</span><span class="db-stat-lbl">Views</span></div>
+          <div class="db-stat"><span class="db-stat-val" id="dbstat-rows">--</span><span class="db-stat-lbl">Total Rows</span></div>
+          <div class="db-stat"><span class="db-stat-val" id="dbstat-size">--</span><span class="db-stat-lbl">DB Size</span></div>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <div class="db-indicator" id="db-init-indicator">
+              <span class="db-dot idle"></span><span id="db-init-label">Not initialized</span>
+            </div>
+            <button class="btn-db-action" id="btn-db-seed">⚡ Seed Database</button>
+            <button class="btn-db-action" id="btn-db-download-sql">↓ SQL Dump</button>
+            <button class="btn-db-action" id="btn-db-download-sqlite">↓ .sqlite</button>
+          </div>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="db-tab-bar">
+          <button class="db-tab active" data-dbtab="schema">Schema Browser</button>
+          <button class="db-tab" data-dbtab="er">ER Diagram</button>
+          <button class="db-tab" data-dbtab="query">SQL Console</button>
+          <button class="db-tab" data-dbtab="stats">Table Stats</button>
+        </div>
+
+        <!-- TAB: Schema Browser -->
+        <div class="db-tab-panel" id="dbpanel-schema">
+          <div class="db-schema-layout">
+            <!-- Table list -->
+            <div class="db-table-list" id="db-table-list">
+              <div class="db-list-section-hdr">TABLES</div>
+              <div id="db-table-list-items"></div>
+              <div class="db-list-section-hdr" style="margin-top:12px">VIEWS</div>
+              <div id="db-view-list-items"></div>
+            </div>
+            <!-- Column detail pane -->
+            <div class="db-column-detail" id="db-column-detail">
+              <div class="db-detail-placeholder">← Select a table to see its schema</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: ER Diagram -->
+        <div class="db-tab-panel hidden" id="dbpanel-er">
+          <div class="card" style="padding:0;overflow:hidden">
+            <div class="db-er-toolbar">
+              <span style="font-size:0.75rem;font-weight:700">Entity-Relationship Diagram</span>
+              <span style="font-size:0.70rem;color:var(--text-secondary)">14 tables · 18 FK relationships · Click a table to highlight</span>
+              <a href="docs/er-diagram.html" target="_blank" class="btn-db-action" style="text-decoration:none">⤢ Full ER Diagram</a>
+              <a href="docs/architecture.html" target="_blank" class="btn-db-action" style="text-decoration:none">📄 Architecture Docs</a>
+              <button class="btn-db-action" id="btn-er-reset">Reset</button>
+            </div>
+            <div id="db-er-canvas-wrap" style="overflow:auto;background:var(--bg-base)">
+              <svg id="db-er-svg" width="1280" height="880" style="display:block"></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: SQL Console -->
+        <div class="db-tab-panel hidden" id="dbpanel-query">
+          <div class="db-console-layout">
+            <!-- Query editor -->
+            <div class="card" style="padding:16px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <select id="db-example-queries" class="pipe-select" style="flex:1;max-width:380px">
+                  <option value="">— Example queries —</option>
+                  <option value="latest_aqi">Latest AQI by station</option>
+                  <option value="who_exceedances">WHO exceedances (PM2.5)</option>
+                  <option value="naaqs_compliance">NAAQS compliance 2023</option>
+                  <option value="monthly_trend">Monthly trend — Delhi PM2.5</option>
+                  <option value="completeness">Data completeness</option>
+                  <option value="open_alerts">Open alerts</option>
+                  <option value="sensor_health">Sensor calibration health</option>
+                  <option value="pipeline_runs">Pipeline run history</option>
+                  <option value="top_stations">Top 10 worst stations (AQI)</option>
+                  <option value="hourly_pattern">Hourly pollution pattern (PM2.5)</option>
+                </select>
+                <button class="btn-db-action primary" id="btn-db-run-query">▶ Run</button>
+                <button class="btn-db-action" id="btn-db-clear-query">Clear</button>
+                <button class="btn-db-action" id="btn-db-export-results">↓ CSV</button>
+                <span style="margin-left:auto;font-size:0.68rem;color:var(--text-muted)" id="query-timing"></span>
+              </div>
+              <textarea id="db-sql-input" class="db-sql-textarea" rows="6"
+                placeholder="SELECT * FROM vw_aqi_summary LIMIT 10;"></textarea>
+            </div>
+            <!-- Results -->
+            <div class="card" style="padding:0;margin-top:14px;overflow:hidden">
+              <div id="db-query-results-wrap" class="db-results-wrap">
+                <div class="db-results-placeholder">Run a query to see results</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Table Stats -->
+        <div class="db-tab-panel hidden" id="dbpanel-stats">
+          <div class="db-stats-grid" id="db-stats-grid"></div>
+          <!-- Distribution chart -->
+          <div class="card chart-card" style="margin-top:18px">
+            <div class="card-header"><h3>Row Distribution by Table</h3></div>
+            <div class="chart-wrap" style="height:240px">
+              <canvas id="chart-db-row-dist"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: ANALYTICS STUDIO
+      ══════════════════════════════════════════════════ -->
+      <div id="view-analytics" class="view">
+
+        <!-- Top bar: title + tabs + refresh -->
+        <div class="an-topbar">
+          <div class="an-topbar-left">
+            <span class="an-title">Analytics Studio</span>
+            <span class="an-lib-badge plotly">Plotly.js</span>
+            <span class="an-lib-badge d3">D3.js v7</span>
+          </div>
+          <nav class="an-tabs" id="an-tabs" role="tablist">
+            <button class="an-tab active" data-tab="timeline"     role="tab">📈 Timeline</button>
+            <button class="an-tab"        data-tab="distribution" role="tab">🌐 Distribution</button>
+            <button class="an-tab"        data-tab="geo"          role="tab">🗺 Geo Map</button>
+            <button class="an-tab"        data-tab="correlations" role="tab">🔗 Correlations</button>
+            <button class="an-tab"        data-tab="3d"           role="tab">🧊 3D Explorer</button>
+          </nav>
+          <button class="an-refresh-btn" id="an-refresh-btn" title="Re-render all charts">↻ Refresh</button>
+        </div>
+
+        <!-- ── Tab 1: Timeline ───────────────────────────────── -->
+        <div class="an-panel active" id="an-panel-timeline" role="tabpanel">
+          <div class="an-row">
+            <div class="an-card an-col-2">
+              <div class="an-card-hdr">
+                AQI &amp; Pollutant Timeline
+                <span class="an-lib-tag plotly">Plotly</span>
+                <span class="an-hint">Zoom · Pan · Range-select · Toggle series</span>
+              </div>
+              <div id="an-timeline" style="height:300px"></div>
+            </div>
+            <div class="an-card an-col-1">
+              <div class="an-card-hdr">
+                PM2.5 Distribution by City
+                <span class="an-lib-tag plotly">Plotly</span>
+                <span class="an-hint">Violin + box · Hover</span>
+              </div>
+              <div id="an-boxplot" style="height:300px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tab 2: Distribution ───────────────────────────── -->
+        <div class="an-panel" id="an-panel-distribution" role="tabpanel">
+          <div class="an-card" style="margin-bottom:14px">
+            <div class="an-card-hdr">
+              Parallel Coordinates — Multi-Pollutant Patterns
+              <span class="an-lib-tag plotly">Plotly</span>
+              <span class="an-hint">Drag axis ranges to filter · Lines colored by AQI</span>
+            </div>
+            <div id="an-parallel" style="height:360px"></div>
+          </div>
+          <div class="an-card">
+            <div class="an-card-hdr">
+              24-Hour Radial AQI Clock
+              <span class="an-lib-tag d3">D3</span>
+              <span class="an-hint">Bar length = mean AQI · Color = AQI category · Hover for detail</span>
+            </div>
+            <div id="an-radial" style="height:340px"></div>
+          </div>
+        </div>
+
+        <!-- ── Tab 3: Geo Map ────────────────────────────────── -->
+        <div class="an-panel" id="an-panel-geo" role="tabpanel">
+          <div class="an-row">
+            <div class="an-card an-col-2">
+              <div class="an-card-hdr">
+                India Air Quality Bubble Map
+                <span class="an-lib-tag d3">D3</span>
+                <span class="an-hint">Bubble size = AQI · Color = category · Hover for readings</span>
+              </div>
+              <div id="an-geomap" style="height:520px"></div>
+            </div>
+            <div class="an-card an-col-1">
+              <div class="an-card-hdr">City Rankings</div>
+              <div id="an-geo-sidebar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tab 4: Correlations ───────────────────────────── -->
+        <div class="an-panel" id="an-panel-correlations" role="tabpanel">
+          <div class="an-row">
+            <div class="an-card an-col-1">
+              <div class="an-card-hdr">
+                Correlation Matrix
+                <span class="an-lib-tag d3">D3</span>
+                <span class="an-hint">Blue = positive · Red = negative · Hover for r value</span>
+              </div>
+              <div id="an-corr-matrix" style="height:380px"></div>
+            </div>
+            <div class="an-card an-col-1">
+              <div class="an-card-hdr">
+                Correlation Network
+                <span class="an-lib-tag d3">D3</span>
+                <span class="an-hint">Green = positive · Red = negative · Drag nodes freely</span>
+              </div>
+              <div id="an-force-network" style="height:380px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tab 5: 3D Explorer ────────────────────────────── -->
+        <div class="an-panel" id="an-panel-3d" role="tabpanel">
+          <div class="an-card">
+            <div class="an-card-hdr">
+              3D AQI Surface — Hour of Day × Day of Week
+              <span class="an-lib-tag plotly">Plotly</span>
+              <span class="an-hint">Rotate · Zoom · Hover · Contour projection on floor</span>
+            </div>
+            <div id="an-3d" style="height:520px"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: KPI DASHBOARD
+      ══════════════════════════════════════════════════ -->
+      <div id="view-kpis" class="view">
+
+        <!-- Control bar -->
+        <div class="kpi-topbar">
+          <div class="kpi-topbar-left">
+            <span class="kpi-topbar-title">KPI Dashboard</span>
+            <span id="kpi-city-label" class="kpi-city-badge"></span>
+          </div>
+          <div class="kpi-topbar-controls">
+            <div class="kpi-period-tabs" id="kpi-period-tabs">
+              <button class="kpi-period-btn" data-days="7">7d</button>
+              <button class="kpi-period-btn active" data-days="30">30d</button>
+              <button class="kpi-period-btn" data-days="90">90d</button>
+            </div>
+            <div id="kpi-source-toggle" class="kpi-source-toggle">
+              <span class="kpi-source-label">Source:</span>
+              <button class="kpi-source-btn active" id="btn-kpi-browser">Browser</button>
+              <button class="kpi-source-btn" id="btn-kpi-api">API</button>
+            </div>
+            <button class="btn-kpi-refresh" id="btn-kpi-refresh">↻ Refresh</button>
+          </div>
+          <div id="kpi-status" class="kpi-status-bar"></div>
+        </div>
+
+        <!-- KPI Cards Row -->
+        <div class="kpi-cards-row" id="kpi-cards-row">
+          <!-- populated by renderKPICards() -->
+        </div>
+
+        <!-- Chart Grid Row 1 -->
+        <div class="kpi-chart-grid">
+          <div class="kpi-panel">
+            <div class="kpi-panel-hdr">
+              AQI Trend
+              <span class="kpi-panel-sub" id="kpi-trend-sub"></span>
+              <div class="kpi-panel-legend" id="kpi-trend-legend"></div>
+            </div>
+            <div class="kpi-chart-wrap" style="height:220px">
+              <canvas id="kpi-chart-trend"></canvas>
+            </div>
+          </div>
+          <div class="kpi-panel">
+            <div class="kpi-panel-hdr">
+              Day Classification
+              <span class="kpi-panel-sub" id="kpi-days-sub"></span>
+            </div>
+            <div class="kpi-chart-wrap" style="height:220px">
+              <canvas id="kpi-chart-days"></canvas>
+            </div>
+            <div id="kpi-days-legend" class="kpi-days-legend"></div>
+          </div>
+        </div>
+
+        <!-- Chart Grid Row 2 -->
+        <div class="kpi-chart-grid">
+          <div class="kpi-panel">
+            <div class="kpi-panel-hdr">
+              Peak Pollution Hours
+              <span class="kpi-panel-sub">Hour-of-day mean AQI</span>
+              <div id="kpi-peak-badges" style="margin-left:auto;display:flex;gap:6px"></div>
+            </div>
+            <div class="kpi-chart-wrap" style="height:200px">
+              <canvas id="kpi-chart-hours"></canvas>
+            </div>
+          </div>
+          <div class="kpi-panel">
+            <div class="kpi-panel-hdr">Pollutant Concentration Trends</div>
+            <div id="kpi-trends-table"></div>
+          </div>
+        </div>
+
+        <!-- Health Index + PLI Row -->
+        <div class="kpi-chart-grid kpi-health-row">
+          <div class="kpi-panel">
+            <div class="kpi-panel-hdr">
+              Health Risk Index (PLI)
+              <span class="kpi-panel-sub">Pollution Load Index = geometric mean of param/WHO ratios</span>
+            </div>
+            <div id="kpi-health-content"></div>
+          </div>
+          <div class="kpi-panel">
+            <div class="kpi-panel-hdr">Risk Day Distribution</div>
+            <div class="kpi-chart-wrap" style="height:200px">
+              <canvas id="kpi-chart-risk"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full-width heatmap -->
+        <div class="kpi-panel kpi-heatmap-panel">
+          <div class="kpi-panel-hdr">
+            Pollutant × Hour Heatmap
+            <span class="kpi-panel-sub">Mean concentration by hour of day — darker = higher relative intensity</span>
+            <div id="kpi-heatmap-legend" class="kpi-heatmap-legend"></div>
+          </div>
+          <div id="kpi-heatmap"></div>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: ETL STUDIO
+      ══════════════════════════════════════════════════ -->
+      <div id="view-etl" class="view">
+
+        <!-- Top action bar -->
+        <div class="etl-topbar">
+          <div style="display:flex;align-items:center;gap:10px">
+            <select id="etl-template-select" class="pipe-select" style="min-width:260px">
+              <option value="">— Load a template —</option>
+            </select>
+            <button class="btn-etl" id="btn-etl-new">＋ New Job</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+            <button class="btn-etl"         id="btn-etl-preview">👁 Preview (200 rows)</button>
+            <button class="btn-etl primary"  id="btn-etl-run">▶ Run Full Job</button>
+            <button class="btn-etl"         id="btn-etl-history">🕑 History</button>
+          </div>
+        </div>
+
+        <!-- Three-column layout -->
+        <div class="etl-layout">
+
+          <!-- LEFT: Source + Config -->
+          <div class="etl-left">
+
+            <!-- Source selector -->
+            <div class="etl-panel">
+              <div class="etl-panel-hdr">① Source</div>
+              <div class="etl-source-buttons" id="etl-source-buttons">
+                <button class="etl-src-btn active" data-src="csv_file">📄 CSV File</button>
+                <button class="etl-src-btn" data-src="json_file">📋 JSON File</button>
+                <button class="etl-src-btn" data-src="current">📊 Dashboard</button>
+                <button class="etl-src-btn" data-src="iot">📡 IoT Sensor</button>
+                <button class="etl-src-btn" data-src="cpcb">🏛 CPCB</button>
+                <button class="etl-src-btn" data-src="sqlite">🗄 SQLite</button>
+              </div>
+
+              <!-- File drop zone (csv / json) -->
+              <div id="etl-drop-zone" class="etl-drop-zone">
+                <div class="etl-drop-inner">
+                  <div style="font-size:2rem">📁</div>
+                  <div style="font-weight:700;margin-top:8px">Drop CSV or JSON here</div>
+                  <div style="font-size:.70rem;color:var(--text-secondary);margin-top:4px">or click to browse</div>
+                  <input type="file" id="etl-file-input" accept=".csv,.tsv,.json" style="display:none">
+                </div>
+                <div id="etl-file-info" style="display:none" class="etl-file-info">
+                  <span id="etl-file-name"></span>
+                  <span id="etl-file-rows" class="etl-badge"></span>
+                  <span id="etl-file-delim" class="etl-badge"></span>
+                  <button id="etl-file-clear" class="btn-etl" style="padding:3px 8px;font-size:.65rem">✕</button>
+                </div>
+              </div>
+
+              <!-- Other source config -->
+              <div id="etl-src-config"></div>
+            </div>
+
+            <!-- Column mapping -->
+            <div class="etl-panel" id="etl-mapping-panel" style="display:none">
+              <div class="etl-panel-hdr">② Column Mapping
+                <span id="etl-mapping-conf-badge" class="etl-badge" style="background:rgba(34,197,94,.15);color:var(--aqi-good)"></span>
+                <button class="btn-etl" style="margin-left:auto;padding:3px 8px;font-size:.65rem" id="btn-etl-auto-map">↺ Re-auto-map</button>
+              </div>
+              <div id="etl-mapping-table-wrap" style="overflow-x:auto">
+                <table id="etl-mapping-table" class="etl-mapping-tbl"></table>
+              </div>
+            </div>
+
+            <!-- Targets -->
+            <div class="etl-panel">
+              <div class="etl-panel-hdr">④ Load Targets</div>
+              <div id="etl-target-buttons" class="etl-source-buttons"></div>
+              <div id="etl-target-config" style="margin-top:8px;font-size:.72rem;color:var(--text-secondary)">
+                Select one or more targets above.
+              </div>
+            </div>
+          </div>
+
+          <!-- CENTER: Pipeline builder -->
+          <div class="etl-center">
+            <div class="etl-panel" style="height:100%">
+              <div class="etl-panel-hdr">③ Transform Pipeline
+                <button class="btn-etl" id="btn-etl-add-step" style="margin-left:auto;padding:4px 10px">＋ Add Step</button>
+              </div>
+
+              <!-- Add-step dropdown -->
+              <div id="etl-add-step-menu" class="etl-op-menu" style="display:none"></div>
+
+              <!-- Steps list (drag-to-reorder) -->
+              <div id="etl-steps-list" class="etl-steps-list">
+                <div class="etl-steps-empty">
+                  No transform steps — raw data will be loaded as-is.<br>
+                  Click <strong>＋ Add Step</strong> to build your pipeline.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Progress + Preview -->
+          <div class="etl-right">
+
+            <!-- Progress panel -->
+            <div class="etl-panel" id="etl-progress-panel">
+              <div class="etl-panel-hdr">Progress</div>
+              <div id="etl-progress-inner">
+                <div class="etl-progress-idle">Job not started</div>
+              </div>
+            </div>
+
+            <!-- Stats cards -->
+            <div class="etl-stats-row" id="etl-stats-row"></div>
+
+            <!-- Preview table -->
+            <div class="etl-panel" id="etl-preview-panel" style="display:none">
+              <div class="etl-panel-hdr">
+                Preview
+                <span id="etl-preview-badge" class="etl-badge"></span>
+                <select id="etl-preview-mode" class="pipe-select" style="margin-left:auto;font-size:.65rem;padding:3px 6px">
+                  <option value="output">Output rows</option>
+                  <option value="input">Input rows</option>
+                  <option value="diff">Changed only</option>
+                </select>
+              </div>
+              <div id="etl-preview-wrap" style="overflow:auto;max-height:360px"></div>
+            </div>
+
+            <!-- Job history panel -->
+            <div class="etl-panel" id="etl-history-panel" style="display:none">
+              <div class="etl-panel-hdr">Job History
+                <button class="btn-etl" id="btn-etl-clear-history" style="margin-left:auto;padding:3px 8px;font-size:.65rem">Clear</button>
+              </div>
+              <div id="etl-history-list"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: SENSOR NETWORK
+      ══════════════════════════════════════════════════ -->
+      <div id="view-sensors" class="view">
+        <!-- Network summary banner -->
+        <div class="sensor-summary-bar" id="sensor-summary-bar">
+          <div class="sensor-stat"><span class="sensor-stat-val" id="snet-total">--</span><span class="sensor-stat-lbl">Total Nodes</span></div>
+          <div class="sensor-stat"><span class="sensor-stat-val green" id="snet-online">--</span><span class="sensor-stat-lbl">Online</span></div>
+          <div class="sensor-stat"><span class="sensor-stat-val red" id="snet-offline">--</span><span class="sensor-stat-lbl">Offline</span></div>
+          <div class="sensor-stat"><span class="sensor-stat-val" id="snet-quality">--%</span><span class="sensor-stat-lbl">Data Quality</span></div>
+          <div class="sensor-stat"><span class="sensor-stat-val" id="snet-temp">--°C</span><span class="sensor-stat-lbl">Temperature</span></div>
+          <div class="sensor-stat"><span class="sensor-stat-val" id="snet-hum">--%</span><span class="sensor-stat-lbl">Humidity</span></div>
+        </div>
+
+        <!-- Node cards -->
+        <div id="sensor-nodes-grid" class="sensor-nodes-grid"></div>
+
+        <!-- Aggregated chart -->
+        <div class="card chart-card" style="margin-top:20px">
+          <div class="card-header">
+            <h3>Cross-Node PM2.5 Dispersion</h3>
+            <span class="card-subtitle">Mean ± 1σ across sensor nodes — current city</span>
+          </div>
+          <div class="chart-wrap" style="height:260px">
+            <canvas id="chart-sensor-dispersion"></canvas>
+          </div>
+        </div>
+
+        <!-- Sensor meta table -->
+        <div class="card" style="margin-top:20px">
+          <div class="card-header"><h3>Sensor Node Status</h3></div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Node ID</th><th>Name</th><th>Zone</th>
+                  <th>Status</th><th>Battery</th><th>Signal</th>
+                  <th>Cal. Age</th><th>Quality</th><th>Sensor Models</th>
+                </tr>
+              </thead>
+              <tbody id="sensor-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: DATA SOURCES
+      ══════════════════════════════════════════════════ -->
+      <div id="view-datasources" class="view">
+        <!-- Source status cards -->
+        <div class="source-cards-grid" id="source-cards-grid"></div>
+
+        <!-- CPCB historical explorer -->
+        <div class="card" style="margin-top:20px">
+          <div class="card-header">
+            <h3>CPCB Historical Dataset Explorer</h3>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <select id="cpcb-param-select" class="city-select" style="background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text-primary)">
+                <option value="pm25">PM2.5</option>
+                <option value="pm10">PM10</option>
+                <option value="no2">NO₂</option>
+                <option value="so2">SO₂</option>
+                <option value="o3">O₃</option>
+                <option value="co">CO</option>
+                <option value="temperature">Temperature</option>
+                <option value="humidity">Humidity</option>
+              </select>
+              <select id="cpcb-year-select" class="city-select" style="background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text-primary)">
+                <option value="all">All Years (2019–2023)</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+              </select>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:300px">
+            <canvas id="chart-cpcb-historical"></canvas>
+          </div>
+        </div>
+
+        <!-- NCAP trend chart -->
+        <div class="charts-row">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>PM2.5 Annual Trend (2019–2023)</h3>
+              <span class="card-subtitle">All cities — NCAP progress</span>
+            </div>
+            <div class="chart-wrap" style="height:240px">
+              <canvas id="chart-ncap-trend"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>WHO Exceedance Factor</h3>
+              <span class="card-subtitle">Annual mean ÷ WHO 2021 guideline</span>
+            </div>
+            <div class="chart-wrap" style="height:240px">
+              <canvas id="chart-who-exceedance"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dataset metadata -->
+        <div class="card" style="margin-top:20px">
+          <div class="card-header"><h3>Dataset Provenance</h3></div>
+          <div class="provenance-grid" id="provenance-grid"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           VIEW: ABOUT AQI
+      ══════════════════════════════════════════════════ -->
+      <div id="view-about" class="view">
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header"><h3>AQI Scale &amp; Health Categories</h3></div>
+          <div id="aqi-scale-content" class="aqi-scale-grid"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Key Pollutants Explained</h3></div>
+          <div id="pollutants-info" class="pollutants-info-grid"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"><span id="toast-text"></span></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/cpcb-dataset.js"></script>
+<script src="js/iot-simulator.js"></script>
+<script src="js/config.local.js"></script><!-- optional, gitignored: sets window.WAQI_TOKEN -->
+<script src="js/fetcher.js"></script>
+<script src="js/unit-converter.js"></script>
+<script src="js/cleaner.js"></script>
+<script src="js/pipeline.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/etl-extract.js"></script>
+<script src="js/etl-transform.js"></script>
+<script src="js/etl-load.js"></script>
+<script src="js/etl-engine.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+<script src="js/db-schema.js"></script>
+<script src="js/db-engine.js"></script>
+<script src="js/db-seeder.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="js/filters.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/forecast.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

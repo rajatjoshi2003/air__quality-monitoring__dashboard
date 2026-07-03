@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# SQLite database (auto-created & seeded on first run)
+backend/aqi.db
+backend/aqi.db-wal
+backend/aqi.db-shm
+*.sqlite
+*.sqlite3
+
+# Node / tooling
+node_modules/
+package-lock.json
+
+# Power BI generated exports (regenerate via powerbi/export_powerbi.py)
+powerbi/data/
+
+# Local secrets (WAQI token etc.) — keep out of git
+js/config.local.js
+
+# Claude Code — memory, context & local config (keep out of git)
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+.idea/
+.vscode/
